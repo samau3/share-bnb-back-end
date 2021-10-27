@@ -6,16 +6,6 @@ const { generateUploadUrl } = require("../s3");
 
 const router = new express.Router();
 
-// const storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         cb(null, 'public')
-//     },
-//     filename: (req, file, cb) => {
-//         cb(null, Date.now() + '-' + file.originalname)
-//     }
-// })
-
-// const upload = multer({ storage: storage }).single('file')
 const upload = multer();
 
 router.post("/", upload.single('file'), async function (req, res, next) {
@@ -34,7 +24,7 @@ router.post("/", upload.single('file'), async function (req, res, next) {
     console.log("listings post route upload fn", req.file);
 
     const result = await generateUploadUrl(req.file);
-    console.log("listings post route", result);
+    // console.log("listings post route", result);
     // const listing = await Listing.create(req.body);
     // return res.status(201).json({ upload });
 });

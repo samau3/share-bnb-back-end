@@ -42,16 +42,16 @@ async function generateUploadUrl(file) {
   });
   params.Body = fileStream;
 
-  s3.upload(params, function (err, data) {
+  const url = s3.upload(params, function (err, data) {
     if (err) {
       console.log("Error", err);
       throw new Error(err);
     } if (data) {
       console.log("Upload Success", data.Location);
-      return data;
+      return data.Location;
     }
   });
-
+  return url;
   // const uploadUrl = await s3.getSignedUrlPromise("putObject", params);
   // return uploadUrl;
 }
