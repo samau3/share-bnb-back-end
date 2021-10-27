@@ -22,13 +22,14 @@ router.post("/", upload.single('file'), async function (req, res, next) {
     // }
 
     // console.log("listings post route upload fn", req.file);
-
+    console.log('listings post req file file', req.file)
     const result = await generateUploadUrl(req.file);
     console.log("listings post route", result);
     console.log('listings post route req data', req)
     req.body.photoUrl = result;
     const listing = await Listing.create(req.body);
     return res.status(201).json({ listing });
+    return res.status(201).json("hi");
 });
 
 module.exports = router;

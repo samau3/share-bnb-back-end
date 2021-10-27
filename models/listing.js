@@ -23,7 +23,14 @@ class Listing {
 
         //   if (duplicateCheck.rows[0])
         //     throw new BadRequestError(`Duplicate company: ${handle}`);
-        console.log("listing model create", { newListingData })
+        const { name,
+            street,
+            city,
+            state,
+            country,
+            description,
+            photoUrl } = newListingData;
+        console.log("listing model create", { newListingData }, JSON.stringify(newListingData.formDataState))
         const result = await db.query(
             `INSERT INTO listings
                (name, street, city, state, country, description, photoUrl)
