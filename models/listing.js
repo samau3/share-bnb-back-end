@@ -30,7 +30,7 @@ class Listing {
             country,
             description,
             photoUrl } = newListingData;
-        console.log("listing model create", { newListingData }, JSON.stringify(newListingData.formDataState))
+
         const result = await db.query(
             `INSERT INTO listings
                (name, street, city, state, country, description, photoUrl)
