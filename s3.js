@@ -3,6 +3,7 @@ const AWS = require("aws-sdk");
 // const fsP = require("fs/promises");
 const fs = require('fs');
 const path = require('path')
+const { Readable } = require('stream');
 
 dotenv.config();
 
@@ -30,18 +31,17 @@ async function generateUploadUrl(file) {
   console.log("generateUploadUrl", { file })
   const params = ({
     Bucket: bucketName,
-    Key: file.name,
+    Key: file.originalname,
     Body: ''
   })
 
-  const convertedFile = file.originalname;
-  console.log(convertedFile);
-  const fileStream = fs.createReadStream(convertedFile);
+//   const fileStream = fs.createReadStream(file.buffer);
+  const fileStream = Readable.from(file.buffer.toString());
   fileStream.on('error', function (err) {
     console.log('File Error', err);
   });
   params.Body = fileStream;
-  // params.Key = path.basename(file)
+
   s3.upload(params, function (err, data) {
     if (err) {
       console.log("Error", err);
