@@ -36,7 +36,7 @@ class Listing {
                (name, street, city, state, country, description, photoUrl)
                  VALUES
                    ($1, $2, $3, $4, $5, $6, $7)
-                 RETURNING id, name, street, city, state, country, description, photoUrl`,
+                 RETURNING id, name, street, city, state, country, description, photourl AS "photoUrl"`,
             [
                 name,
                 street,
@@ -70,22 +70,22 @@ class Listing {
         let vals = [];
 
         if (name) {
-            vals.push(name);
+            vals.push(`%${name}%`);
             whereParts.push(`name ILIKE $${vals.length}`);
         }
 
         if (street) {
-            vals.push(street);
+            vals.push(`%${street}%`);
             whereParts.push(`street ILIKE $${vals.length}`);
         }
 
         if (city) {
-            vals.push(city);
+            vals.push(`%${city}%`);
             whereParts.push(`city ILIKE $${vals.length}`);
         }
 
         if (state) {
-            vals.push(state);
+            vals.push(`%${state}%`);
             whereParts.push(`state ILIKE $${vals.length}`);
         }
 
@@ -120,11 +120,11 @@ class Listing {
              state,
              country,
              description,
-             photoUrl
+             photourl AS "photoUrl"
         FROM listings ${where}
         ORDER BY name
     `, vals);
-        return listingRes.rows;
+        return listingsRes.rows;
     }
 
     /** Given a company handle, return data about company.
@@ -144,7 +144,7 @@ class Listing {
                 state,
                 country,
                 description,
-                photoUrl
+                photourl AS "photoUrl"
            FROM listings
            WHERE id = $1`,
             [id]);
@@ -183,7 +183,7 @@ class Listing {
                             state,
                             country,
                             description,
-                            photoUrl`;
+                            photourl AS "photoUrl"`;
         const result = await db.query(querySql, [...values, id]);
         const listing = result.rows[0];
 
