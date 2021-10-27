@@ -1,7 +1,8 @@
 "use strict";
+const db = require("../db");
 
-import { NotFoundError } from "../expressError";
-import sqlForPartialUpdate from "../helpers/sql";
+const { NotFoundError } = require("../expressError");
+const sqlForPartialUpdate = require("../helpers/sql");
 
 class Listing {
     /** Create a company (from data), update db, return new company data.
@@ -13,7 +14,7 @@ class Listing {
      * Throws BadRequestError if company already in database.
      * */
 
-    static async create({ newListingData }) {
+    static async create(newListingData) {
         //   const duplicateCheck = await db.query(
         //       `SELECT handle
         //          FROM companies
@@ -22,7 +23,7 @@ class Listing {
 
         //   if (duplicateCheck.rows[0])
         //     throw new BadRequestError(`Duplicate company: ${handle}`);
-
+        console.log("listing model create", { newListingData })
         const result = await db.query(
             `INSERT INTO listings
                (name, street, city, state, country, description, photoUrl)

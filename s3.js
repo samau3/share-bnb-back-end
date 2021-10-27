@@ -35,23 +35,24 @@ async function generateUploadUrl(file) {
     Body: ''
   })
 
-//   const fileStream = fs.createReadStream(file.buffer);
+  //   const fileStream = fs.createReadStream(file.buffer);
   const fileStream = Readable.from(file.buffer);
   fileStream.on('error', function (err) {
     console.log('File Error', err);
   });
   params.Body = fileStream;
 
-  const url = s3.upload(params, function (err, data) {
+  const url = await s3.upload(params, function (err, data) {
     if (err) {
       console.log("Error", err);
       throw new Error(err);
     } if (data) {
       console.log("Upload Success", data.Location);
-      return data.Location;
     }
-  });
-  return url;
+  }).promise();
+
+  console.log('generateUploadUrl returning', url)
+  return url.Location;
   // const uploadUrl = await s3.getSignedUrlPromise("putObject", params);
   // return uploadUrl;
 }
