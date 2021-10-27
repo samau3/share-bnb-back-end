@@ -33,8 +33,8 @@ router.post("/", upload.single('file'), async function (req, res, next) {
 
     console.log("listings post route upload fn", req.file);
 
-    // const upload = await generateUploadUrl(req.body);
-    // console.log("listings post route", upload);
+    const result = await generateUploadUrl(req.file);
+    console.log("listings post route", result);
     // const listing = await Listing.create(req.body);
     // return res.status(201).json({ upload });
 });
