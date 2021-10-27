@@ -36,7 +36,7 @@ async function generateUploadUrl(file) {
   })
 
 //   const fileStream = fs.createReadStream(file.buffer);
-  const fileStream = Readable.from(file.buffer.toString());
+  const fileStream = Readable.from(file.buffer);
   fileStream.on('error', function (err) {
     console.log('File Error', err);
   });
