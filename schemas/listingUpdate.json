@@ -34,6 +34,10 @@
     "photoUrl": {
       "type": "string",
       "format": "uri"
+    },
+    "price": {
+      "type": "integer",
+      "minimum": 0
     }
   },
   "additionalProperties": false,

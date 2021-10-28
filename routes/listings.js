@@ -37,7 +37,7 @@ router.post("/", upload.single('file'), async function (req, res, next) {
 });
 
 /** GET /  =>
- *   { listings: [ { id, name, street, city, state, country, description, photoUrl }, ...] }
+ *   { listings: [ { id, name, street, city, state, country, description, photoUrl, price }, ...] }
  *
  * Can filter on provided search filters (will find case-insensitive, partial matches):
  * - name

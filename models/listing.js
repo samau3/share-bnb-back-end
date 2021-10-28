@@ -23,7 +23,8 @@ class Listing {
             state,
             country,
             description,
-            photoUrl } = newListingData;
+            photoUrl,
+            price } = newListingData;
 
         const duplicateCheck = await db.query(
             `SELECT name
@@ -36,10 +37,10 @@ class Listing {
 
         const result = await db.query(
             `INSERT INTO listings
-               (name, street, city, state, country, description, photoUrl)
+               (name, street, city, state, country, description, photoUrl, price)
                  VALUES
-                   ($1, $2, $3, $4, $5, $6, $7)
-                 RETURNING id, name, street, city, state, country, description, photourl AS "photoUrl"`,
+                   ($1, $2, $3, $4, $5, $6, $7, $8)
+                 RETURNING id, name, street, city, state, country, description, photourl AS "photoUrl, price"`,
             [
                 name,
                 street,
@@ -47,7 +48,8 @@ class Listing {
                 state,
                 country,
                 description,
-                photoUrl
+                photoUrl,
+                price
             ],
         );
         const listing = result.rows[0];
@@ -107,7 +109,7 @@ class Listing {
     * - state
     * - country
     *
-    * Returns [{ id, name, street, city, state, country, description, photoUrl }, ...]
+    * Returns [{ id, name, street, city, state, country, description, photoUrl, price }, ...]
     * */
 
     static async findAll(searchFilters = {}) {
@@ -125,7 +127,8 @@ class Listing {
              state,
              country,
              description,
-             photourl AS "photoUrl"
+             photourl AS "photoUrl",
+             price
         FROM listings ${where}
         ORDER BY name
     `, vals);
@@ -134,7 +137,7 @@ class Listing {
 
     /** Given a listing id, return data about listing.
      *
-     * Returns { id, name, street, city, state, country, description, photoUrl }
+     * Returns { id, name, street, city, state, country, description, photoUrl, price }
      *
      * Throws NotFoundError if not found.
      **/
@@ -148,7 +151,8 @@ class Listing {
                 state,
                 country,
                 description,
-                photourl AS "photoUrl"
+                photourl AS "photoUrl",
+                price
            FROM listings
            WHERE id = $1`,
             [id]);
@@ -187,7 +191,8 @@ class Listing {
                             state,
                             country,
                             description,
-                            photourl AS "photoUrl"`;
+                            photourl AS "photoUrl",
+                            price`;
         const result = await db.query(querySql, [...values, id]);
         const listing = result.rows[0];
 
