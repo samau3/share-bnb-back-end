@@ -20,20 +20,21 @@ const upload = multer();
  * Authorization required: none
  */
 router.post("/", upload.single('file'), async function (req, res, next) {
-    const validator = jsonschema.validate(req.body, listingNewSchema);
-    if (!validator.valid) {
-        const errs = validator.errors.map(e => e.stack);
-        throw new BadRequestError(errs);
-    }
+  req.body.price = +req.body.price;
+  const validator = jsonschema.validate(req.body, listingNewSchema);
+  if (!validator.valid) {
+    const errs = validator.errors.map(e => e.stack);
+    throw new BadRequestError(errs);
+  }
 
-    // console.log("listings post route upload fn", req.file);
-    console.log('listings post req file file', req.file)
-    const result = await generateUploadUrl(req.file);
-    console.log("listings post route", result);
-    console.log('listings post route req data', req)
-    req.body.photoUrl = result;
-    const listing = await Listing.create(req.body);
-    return res.status(201).json({ listing });
+  // console.log("listings post route upload fn", req.file);
+  // console.log('listings post req file file', req.file)
+  const result = await generateUploadUrl(req.file);
+  // console.log("listings post route", result);
+  // console.log('listings post route req data', req)
+  req.body.photoUrl = result;
+  const listing = await Listing.create(req.body);
+  return res.status(201).json({ listing });
 });
 
 /** GET /  =>
@@ -48,62 +49,62 @@ router.post("/", upload.single('file'), async function (req, res, next) {
  * Authorization required: none
  */
 
- router.get("/", async function (req, res, next) {
-    const q = req.query;
-  
-    const validator = jsonschema.validate(q, listingSearchSchema);
-    if (!validator.valid) {
-      const errs = validator.errors.map(e => e.stack);
-      throw new BadRequestError(errs);
-    }
-  
-    const listings = await Listing.findAll(q);
-    return res.json({ listings });
-  });
-  
-  /** GET /[id]  =>  { listing }
-   *
-   *  Listing is { id, name, street, city, state, country, description, photoUrl }
-    *
-   * Authorization required: none
-   */
-  
-  router.get("/:id", async function (req, res, next) {
-    const listing = await Listing.get(req.params.id);
-    return res.json({ listing });
-  });
-  
-  /** PATCH /[id] { fld1, fld2, ... } => { listing }
-   *
-   * Patches listing data.
-   *
-   * fields can be: { name, street, city, state, country, description, photoUrl }
-   *
-   * Returns { id, name, street, city, state, country, description, photoUrl }
-   *
-   * Authorization required: 
-   */
-  
-  router.patch("/:id", async function (req, res, next) {
-    // const validator = jsonschema.validate(req.body, listingUpdateSchema);
-    // if (!validator.valid) {
-    //   const errs = validator.errors.map(e => e.stack);
-    //   throw new BadRequestError(errs);
-    // }
-  
-    const listing = await Listing.update(req.params.id, req.body);
-    return res.json({ listing });
-  });
-  
-  /** DELETE /[id]  =>  { deleted: id }
-   *
-   * Authorization: 
-   */
-  
-  router.delete("/:id", async function (req, res, next) {
-    await Listing.remove(req.params.id);
-    return res.json({ deleted: req.params.id });
-  });
-  
+router.get("/", async function (req, res, next) {
+  const q = req.query;
+
+  const validator = jsonschema.validate(q, listingSearchSchema);
+  if (!validator.valid) {
+    const errs = validator.errors.map(e => e.stack);
+    throw new BadRequestError(errs);
+  }
+
+  const listings = await Listing.findAll(q);
+  return res.json({ listings });
+});
+
+/** GET /[id]  =>  { listing }
+ *
+ *  Listing is { id, name, street, city, state, country, description, photoUrl }
+  *
+ * Authorization required: none
+ */
+
+router.get("/:id", async function (req, res, next) {
+  const listing = await Listing.get(req.params.id);
+  return res.json({ listing });
+});
+
+/** PATCH /[id] { fld1, fld2, ... } => { listing }
+ *
+ * Patches listing data.
+ *
+ * fields can be: { name, street, city, state, country, description, photoUrl }
+ *
+ * Returns { id, name, street, city, state, country, description, photoUrl }
+ *
+ * Authorization required: 
+ */
+
+router.patch("/:id", async function (req, res, next) {
+  // const validator = jsonschema.validate(req.body, listingUpdateSchema);
+  // if (!validator.valid) {
+  //   const errs = validator.errors.map(e => e.stack);
+  //   throw new BadRequestError(errs);
+  // }
+
+  const listing = await Listing.update(req.params.id, req.body);
+  return res.json({ listing });
+});
+
+/** DELETE /[id]  =>  { deleted: id }
+ *
+ * Authorization: 
+ */
+
+router.delete("/:id", async function (req, res, next) {
+  await Listing.remove(req.params.id);
+  return res.json({ deleted: req.params.id });
+});
+
 
 module.exports = router;
