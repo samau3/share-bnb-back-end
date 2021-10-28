@@ -14,12 +14,17 @@ const router = new express.Router();
 
 const upload = multer();
 
+/** POST /  =>
+ *   { listing: { id, name, street, city, state, country, description, photoUrl }
+ *
+ * Authorization required: none
+ */
 router.post("/", upload.single('file'), async function (req, res, next) {
-    // const validator = jsonschema.validate(req.body, listingNewSchema);
-    // if (!validator.valid) {
-    //     const errs = validator.errors.map(e => e.stack);
-    //     throw new BadRequestError(errs);
-    // }
+    const validator = jsonschema.validate(req.body, listingNewSchema);
+    if (!validator.valid) {
+        const errs = validator.errors.map(e => e.stack);
+        throw new BadRequestError(errs);
+    }
 
     // console.log("listings post route upload fn", req.file);
     console.log('listings post req file file', req.file)
@@ -46,11 +51,11 @@ router.post("/", upload.single('file'), async function (req, res, next) {
  router.get("/", async function (req, res, next) {
     const q = req.query;
   
-    // const validator = jsonschema.validate(q, companySearchSchema);
-    // if (!validator.valid) {
-    //   const errs = validator.errors.map(e => e.stack);
-    //   throw new BadRequestError(errs);
-    // }
+    const validator = jsonschema.validate(q, listingSearchSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs);
+    }
   
     const listings = await Listing.findAll(q);
     return res.json({ listings });

@@ -32,8 +32,7 @@
       "type": "string"
     },
     "photoUrl": {
-      "type": "string",
-      "format": "uri"
+      "type": "string"
     }
   },
   "additionalProperties": false,

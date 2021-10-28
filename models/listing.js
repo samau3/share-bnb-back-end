@@ -5,24 +5,18 @@ const { NotFoundError } = require("../expressError");
 const sqlForPartialUpdate = require("../helpers/sql");
 
 class Listing {
-    /** Create a company (from data), update db, return new company data.
+    /** Create a listing (from data), update db, return new listing data.
      *
-     * data should be { handle, name, description, numEmployees, logoUrl }
+     * Data:
+     *  { name, street, city, state, country, description, photoUrl }
      *
-     * Returns { handle, name, description, numEmployees, logoUrl }
+     * Returns:
+     *  { id, name, street, city, state, country, description, photoUrl }
      *
-     * Throws BadRequestError if company already in database.
+     * Throws BadRequestError if listing already in database.
      * */
 
     static async create(newListingData) {
-        //   const duplicateCheck = await db.query(
-        //       `SELECT handle
-        //          FROM companies
-        //          WHERE handle = $1`,
-        //       [handle]);
-
-        //   if (duplicateCheck.rows[0])
-        //     throw new BadRequestError(`Duplicate company: ${handle}`);
         const { name,
             street,
             city,
@@ -30,6 +24,15 @@ class Listing {
             country,
             description,
             photoUrl } = newListingData;
+
+        const duplicateCheck = await db.query(
+            `SELECT name
+                 FROM listings
+                 WHERE name = $1`,
+            [name]);
+
+        if (duplicateCheck.rows[0])
+            throw new BadRequestError(`Duplicate listing: ${name}`);
 
         const result = await db.query(
             `INSERT INTO listings
@@ -52,31 +55,27 @@ class Listing {
     }
 
     /** Create WHERE clause for filters, to be used by functions that query
-   * with filters.
-   *
-   * searchFilters (all optional):
-   * - minEmployees
-   * - maxEmployees
-   * - name (will find case-insensitive, partial matches)
-   *
-   * Returns {
-   *  where: "WHERE num_employees >= $1 AND name ILIKE $2",
-   *  vals: [100, '%Apple%']
-   * }
-   */
+    * with filters.
+    *
+    * searchFilters (all optional and will find case-insensitive, partial matches):
+    * - name
+    * - city
+    * - state
+    * - country
+    *
+    * Returns {
+    *  where: "WHERE name ILIKE $1 AND city ILIKE $2",
+    *  vals: ['%Apple%', '%Oakland%']
+    * }
+    */
 
-    static _filterWhereBuilder({ name, street, city, state }) {
+    static _filterWhereBuilder({ name, city, state, country }) {
         let whereParts = [];
         let vals = [];
 
         if (name) {
             vals.push(`%${name}%`);
             whereParts.push(`name ILIKE $${vals.length}`);
-        }
-
-        if (street) {
-            vals.push(`%${street}%`);
-            whereParts.push(`street ILIKE $${vals.length}`);
         }
 
         if (city) {
@@ -89,27 +88,33 @@ class Listing {
             whereParts.push(`state ILIKE $${vals.length}`);
         }
 
+        if (country) {
+            vals.push(`%${country}%`);
+            whereParts.push(`country ILIKE $${vals.length}`);
+        }
+
         const where = (whereParts.length > 0) ?
             "WHERE " + whereParts.join(" AND ")
             : "";
 
         return { where, vals };
     }
-    /** Find all companies (optional filter on searchFilters).
-       *
-       * searchFilters (all optional):
-       * - minEmployees
-       * - maxEmployees
-       * - name (will find case-insensitive, partial matches)
-       *
-       * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
-       * */
+    /** Find all listings (optional filter on searchFilters).
+    *
+    * searchFilters (all optional and will find case-insensitive, partial matches):
+    * - name
+    * - city
+    * - state
+    * - country
+    *
+    * Returns [{ id, name, street, city, state, country, description, photoUrl }, ...]
+    * */
 
     static async findAll(searchFilters = {}) {
-        const { name, street, city, state } = searchFilters;
+        const { name, city, state, country } = searchFilters;
 
         const { where, vals } = this._filterWhereBuilder({
-            name, street, city, state,
+            name, city, state, country
         });
 
         const listingsRes = await db.query(`
@@ -127,10 +132,9 @@ class Listing {
         return listingsRes.rows;
     }
 
-    /** Given a company handle, return data about company.
+    /** Given a listing id, return data about listing.
      *
-     * Returns { handle, name, description, numEmployees, logoUrl, jobs }
-     *   where jobs is [{ id, title, salary, equity }, ...]
+     * Returns { id, name, street, city, state, country, description, photoUrl }
      *
      * Throws NotFoundError if not found.
      **/
@@ -156,14 +160,14 @@ class Listing {
         return listing;
     }
 
-    /** Update company data with `data`.
+    /** Update listing data with `data`.
      *
      * This is a "partial update" --- it's fine if data doesn't contain all the
      * fields; this only changes provided ones.
      *
-     * Data can include: {name, description, numEmployees, logoUrl}
+     * Data can include: {name, street, city, state, country, description, photoUrl}
      *
-     * Returns {handle, name, description, numEmployees, logoUrl}
+     * Returns {id, name, street, city, state, country, description, photoUrl}
      *
      * Throws NotFoundError if not found.
      */
