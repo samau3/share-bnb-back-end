@@ -19,7 +19,7 @@ const upload = multer();
  *
  * Authorization required: none
  */
-router.post("/", upload.single('file'), async function (req, res, next) {
+router.post("/", upload.array('files', files.length), async function (req, res, next) {
   req.body.price = +req.body.price;
   const validator = jsonschema.validate(req.body, listingNewSchema);
   if (!validator.valid) {

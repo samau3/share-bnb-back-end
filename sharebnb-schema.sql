@@ -6,7 +6,7 @@ CREATE TABLE listings (
   state TEXT NOT NULL,
   country TEXT NOT NULL,
   description TEXT NOT NULL,
-  photoUrl TEXT,
+  -- photoUrl TEXT,
   price INTEGER NOT NULL
 );
 
@@ -20,7 +20,9 @@ CREATE TABLE users (
   isAdmin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
--- CREATE TABLE listing_photos (
---   id REFERENCES listings
---   photoURL TEXT UNIQUE
--- );
+CREATE TABLE listing_photos (
+  id SERIAL PRIMARY KEY
+  photoUrl TEXT UNIQUE
+  listingsId INTEGER 
+    REFERENCES listings
+);
