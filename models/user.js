@@ -58,6 +58,7 @@ class User {
 
   static async register(
       { username, password, firstName, lastName, email, isAdmin }) {
+        console.log("in user register model", {username, password, firstName, lastName, email, isAdmin});
     const duplicateCheck = await db.query(
           `SELECT username
            FROM users
