@@ -6,8 +6,8 @@ const express = require("express");
 const cors = require("cors");
 
 const { NotFoundError } = require("./expressError");
-// const { authenticateJWT } = require("./middleware/auth");
-// const authRoutes = require("./routes/auth");
+const { authenticateJWT } = require("./middleware/auth");
+const authRoutes = require("./routes/auth");
 const listingsRoutes = require("./routes/listings");
 
 const app = express();
@@ -15,9 +15,9 @@ const app = express();
 app.use(cors());
 app.use(express.static('public'));
 app.use(express.json());
-// app.use(authenticateJWT);
+app.use(authenticateJWT);
 
-// app.use("/auth", authRoutes);
+app.use("/auth", authRoutes);
 app.use("/listings", listingsRoutes);
 
 

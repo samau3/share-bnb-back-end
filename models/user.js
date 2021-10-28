@@ -16,7 +16,7 @@ const { BCRYPT_WORK_FACTOR } = require("../config.js");
 class User {
   /** authenticate user with username, password.
    *
-   * Returns { username, first_name, last_name, email, is_admin }
+   * Returns { username, firstName, lastName, email, isadmin }
    *
    * Throws UnauthorizedError is user not found or wrong password.
    **/
@@ -26,10 +26,10 @@ class User {
     const result = await db.query(
           `SELECT username,
                   password,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
+                  firstname AS "firstName",
+                  lastname AS "lastName",
                   email,
-                  is_admin AS "isAdmin"
+                  isadmin AS "isAdmin"
            FROM users
            WHERE username = $1`,
         [username],
@@ -75,12 +75,12 @@ class User {
           `INSERT INTO users
            (username,
             password,
-            first_name,
-            last_name,
+            firstname,
+            lastname,
             email,
-            is_admin)
+            isadmin)
            VALUES ($1, $2, $3, $4, $5, $6)
-           RETURNING username, first_name AS "firstName", last_name AS "lastName", email, is_admin AS "isAdmin"`,
+           RETURNING username, firstname AS "firstName", lastname AS "lastName", email, isadmin AS "isAdmin"`,
         [
           username,
           hashedPassword,
@@ -98,16 +98,16 @@ class User {
 
   /** Find all users.
    *
-   * Returns [{ username, first_name, last_name, email, is_admin }, ...]
+   * Returns [{ username, firstName, lastName, email, isadmin }, ...]
    **/
 
   static async findAll() {
     const result = await db.query(
           `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
+                  firstname AS "firstName",
+                  lastname AS "lastName",
                   email,
-                  is_admin AS "isAdmin"
+                  isadmin AS "isAdmin"
            FROM users
            ORDER BY username`,
     );
@@ -117,7 +117,7 @@ class User {
 
   /** Given a username, return data about user.
    *
-   * Returns { username, first_name, last_name, is_admin, jobs }
+   * Returns { username, firstName, lastName, isadmin, jobs }
    *   where jobs is { id, title, company_handle, company_name, state }
    *
    * Throws NotFoundError if user not found.
@@ -126,10 +126,10 @@ class User {
   static async get(username) {
     const userRes = await db.query(
           `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
+                  firstname AS "firstName",
+                  lastname AS "lastName",
                   email,
-                  is_admin AS "isAdmin"
+                  isadmin AS "isAdmin"
            FROM users
            WHERE username = $1`,
         [username],
@@ -173,9 +173,9 @@ class User {
     const { setCols, values } = sqlForPartialUpdate(
         data,
         {
-          firstName: "first_name",
-          lastName: "last_name",
-          isAdmin: "is_admin",
+          firstName: "firstname",
+          lastName: "lastname",
+          isAdmin: "isadmin",
         });
     const usernameVarIdx = "$" + (values.length + 1);
 
@@ -183,10 +183,10 @@ class User {
                       SET ${setCols} 
                       WHERE username = ${usernameVarIdx} 
                       RETURNING username,
-                                first_name AS "firstName",
-                                last_name AS "lastName",
+                                firstname AS "firstName",
+                                lastname AS "lastName",
                                 email,
-                                is_admin AS "isAdmin"`;
+                                isadmin AS "isAdmin"`;
     const result = await db.query(querySql, [...values, username]);
     const user = result.rows[0];
 
