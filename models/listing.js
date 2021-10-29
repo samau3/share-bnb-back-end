@@ -13,7 +13,6 @@ class Listing {
      * Returns:
      *  { id, name, street, city, state, country, description, photoUrl }
      *
-     * Throws BadRequestError if listing already in database.
      * */
 
     static async create(newListingData) {
@@ -23,17 +22,8 @@ class Listing {
             state,
             country,
             description,
-            photoUrl,
+            photoUrls,
             price } = newListingData;
-
-        const duplicateCheck = await db.query(
-            `SELECT name
-                 FROM listings
-                 WHERE name = $1`,
-            [name]);
-
-        if (duplicateCheck.rows[0])
-            throw new BadRequestError(`Duplicate listing: ${name}`);
 
         const listingResult = await db.query(
             `INSERT INTO listings
@@ -52,18 +42,18 @@ class Listing {
             ],
         );
         const listing = listingResult.rows[0];
-        listing.photoUrl = [];
+        listing.photoUrls = [];
         // update name photourls
-        photoUrl.forEach(async(photo) => {
-            console.log("in photoUrl for each loop", {photo});
+        photoUrls.forEach(async (photo) => {
+            console.log("in photoUrl for each loop", { photo });
             const photoUrlsResult = await db.query(
                 `INSERT INTO listing_photos
                     (photourl, listingsid)
                     VALUES
                     ($1, $2)
                     RETURNING id, photourl AS "photoUrl", listingsid AS "listingsId"
-                `,[photo,listing.id])
-            listing.photoUrl.push(photoUrlsResult);
+                `, [photo, listing.id])
+            listing.photoUrls.push(photoUrlsResult);
         });
 
         return listing;
@@ -150,7 +140,7 @@ class Listing {
         GROUP BY l.id
         ORDER BY name
     `, vals);
-        console.log({listingsRes});
+        console.log({ listingsRes });
         return listingsRes.rows;
     }
 
@@ -182,7 +172,7 @@ class Listing {
         const listing = listingRes.rows[0];
 
         if (!listing) throw new NotFoundError(`No listing: ${id}`);
-        console.log({listing});
+        console.log({ listing });
         return listing;
     }
 

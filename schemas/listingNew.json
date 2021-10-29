@@ -31,13 +31,7 @@
     "description": {
       "type": "string"
     },
-    "photoUrl1": {
-      "type": "string"
-    },
-    "photoUrl2": {
-      "type": "string"
-    },
-    "photoUrl3": {
+    "photoUrls": {
       "type": "string"
     },
     "price": {
@@ -52,6 +46,7 @@
     "city",
     "state",
     "country",
-    "description"
+    "description",
+    "photoUrls"
   ]
 }
