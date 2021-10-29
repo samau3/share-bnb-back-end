@@ -22,29 +22,20 @@ const upload = multer();
 // should .any be .fields or .array
 router.post("/", upload.any('file', 3), async function (req, res, next) {
   req.body.price = +req.body.price;
-
-  console.log("req.files", req.files);
-  console.log("req.body", req.body);
-
   const validator = jsonschema.validate(req.body, listingNewSchema);
   if (!validator.valid) {
     const errs = validator.errors.map(e => e.stack);
     throw new BadRequestError(errs);
   }
 
-  // console.log("listings post route upload fn", req.file);
-  // console.log('listings post req file file', req.file)
   const urls = await Promise.all(req.files.map(async (file) => {
     return await generateUploadUrl(file);
   }));
-  console.log({ urls });
-  // const result = await generateUploadUrl(req.file);
-  // console.log("listings post route", result);
-  // console.log('listings post route req data', req)
+
+  // console.log({ urls });
   req.body.photoUrls = urls;
   const listing = await Listing.create(req.body);
   return res.status(201).json({ listing });
-
 });
 
 /** GET /  =>
@@ -75,7 +66,7 @@ router.get("/", async function (req, res, next) {
 
 /** GET /[id]  =>  { listing }
  *
- *  Listing is { id, name, street, city, state, country, description, photoUrl }
+ *  Listing is { id, name, street, city, state, country, description, photoUrls }
   *
  * Authorization required: none
  */
