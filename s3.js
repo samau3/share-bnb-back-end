@@ -1,8 +1,5 @@
 const dotenv = require("dotenv");
 const AWS = require("aws-sdk");
-// const fsP = require("fs/promises");
-const fs = require('fs');
-const path = require('path')
 const { Readable } = require('stream');
 
 dotenv.config();
@@ -11,22 +8,16 @@ const region = "us-west-1";
 const bucketName = "sharebnb-photos";
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-const IdentityPoolId = "231178717159";
+const IdentityPoolId = process.env.IDENTITY_POOL_ID;
 
 AWS.config.update({ region });
 
-
 const s3 = new AWS.S3({
-  // region, 
-  // accessKeyId,
-  // secretAccessKey,
-  // signatureVersion: "v4",
   apiVersion: "2006-03-01",
-  // params: { Bucket: bucketName }
 })
 
 
-
+/** Uploads file to S3 and returns the URL */
 async function generateUploadUrl(file) {
   console.log("generateUploadUrl", { file })
   const params = ({
@@ -35,7 +26,6 @@ async function generateUploadUrl(file) {
     Body: ''
   })
 
-  //   const fileStream = fs.createReadStream(file.buffer);
   const fileStream = Readable.from(file.buffer);
   fileStream.on('error', function (err) {
     console.log('File Error', err);
@@ -53,8 +43,6 @@ async function generateUploadUrl(file) {
 
   console.log('generateUploadUrl returning', url)
   return url.Location;
-  // const uploadUrl = await s3.getSignedUrlPromise("putObject", params);
-  // return uploadUrl;
 }
 
 module.exports = { generateUploadUrl };

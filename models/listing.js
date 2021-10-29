@@ -1,7 +1,7 @@
 "use strict";
 const db = require("../db");
 
-const { NotFoundError, BadRequestError } = require("../expressError");
+const { NotFoundError } = require("../expressError");
 const sqlForPartialUpdate = require("../helpers/sql");
 
 class Listing {
@@ -43,7 +43,6 @@ class Listing {
         );
         const listing = listingResult.rows[0];
         listing.photoUrls = [];
-        // update name photourls
         photoUrls.forEach(async (photo) => {
             console.log("in photoUrl for each loop", { photo });
             const photoUrlsResult = await db.query(
@@ -105,6 +104,7 @@ class Listing {
 
         return { where, vals };
     }
+
     /** Find all listings (optional filter on searchFilters).
     *
     * searchFilters (all optional and will find case-insensitive, partial matches):
@@ -113,7 +113,8 @@ class Listing {
     * - state
     * - country
     *
-    * Returns [{ id, name, street, city, state, country, description, photoUrl, price }, ...]
+    * Returns [{ id, name, street, city, state, country, description, photoUrls, price }, ...]
+    *   where photoUrls is: [URL, URL, URL]
     * */
 
     static async findAll(searchFilters = {}) {
@@ -124,7 +125,7 @@ class Listing {
         });
 
         const listingsRes = await db.query(`
-      SELECT l.id,
+      SELECT l.id as "id",
              name,
              street,
              city,
@@ -146,14 +147,15 @@ class Listing {
 
     /** Given a listing id, return data about listing.
      *
-     * Returns { id, name, street, city, state, country, description, photoUrl, price }
+     * Returns { id, name, street, city, state, country, description, photoUrls, price }
+     *   where photoUrls is: [URL, URL, URL]
      *
      * Throws NotFoundError if not found.
      **/
 
     static async get(id) {
         const listingRes = await db.query(
-            `SELECT l.id,
+            `SELECT l.id as "id",
                 name,
                 street,
                 city,
@@ -181,9 +183,9 @@ class Listing {
      * This is a "partial update" --- it's fine if data doesn't contain all the
      * fields; this only changes provided ones.
      *
-     * Data can include: {name, street, city, state, country, description, photoUrl}
+     * Data can include: {name, street, city, state, country, description}
      *
-     * Returns {id, name, street, city, state, country, description, photoUrl}
+     * Returns {id, name, street, city, state, country, description}
      *
      * Throws NotFoundError if not found.
      */

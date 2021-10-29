@@ -5,6 +5,10 @@ const multer = require('multer');
 const { generateUploadUrl } = require("../s3");
 const { BadRequestError } = require("../expressError");
 const Listing = require("../models/listing");
+const {
+  ensureLoggedIn,
+  ensureCorrectUserOrAdmin,
+} = require("../middleware/auth")
 
 const listingNewSchema = require("../schemas/listingNew.json");
 const listingUpdateSchema = require("../schemas/listingUpdate.json");
@@ -17,10 +21,10 @@ const upload = multer();
 /** POST /  =>
  *   { listing: { id, name, street, city, state, country, description, photoUrl }
  *
- * Authorization required: none
+ * Authorization required: logged in user
  */
-// should .any be .fields or .array
-router.post("/", upload.any('file', 3), async function (req, res, next) {
+// TODO: maybe change upload.any to .array
+router.post("/", upload.any('file', 3), ensureLoggedIn, async function (req, res, next) {
   req.body.price = +req.body.price;
   const validator = jsonschema.validate(req.body, listingNewSchema);
   if (!validator.valid) {
@@ -32,7 +36,6 @@ router.post("/", upload.any('file', 3), async function (req, res, next) {
     return await generateUploadUrl(file);
   }));
 
-  // console.log({ urls });
   req.body.photoUrls = urls;
   const listing = await Listing.create(req.body);
   return res.status(201).json({ listing });
@@ -47,10 +50,10 @@ router.post("/", upload.any('file', 3), async function (req, res, next) {
  * - city
  * - state
  *
- * Authorization required: none
+ * Authorization required: logged in user
  */
 
-router.get("/", async function (req, res, next) {
+router.get("/", ensureLoggedIn, async function (req, res, next) {
   const q = req.query;
 
   const validator = jsonschema.validate(q, listingSearchSchema);
@@ -60,7 +63,6 @@ router.get("/", async function (req, res, next) {
   }
 
   const listings = await Listing.findAll(q);
-  console.log({ listings });
   return res.json({ listings });
 });
 
@@ -68,10 +70,10 @@ router.get("/", async function (req, res, next) {
  *
  *  Listing is { id, name, street, city, state, country, description, photoUrls }
   *
- * Authorization required: none
+ * Authorization required: logged in user
  */
 
-router.get("/:id", async function (req, res, next) {
+router.get("/:id", ensureLoggedIn, async function (req, res, next) {
   const listing = await Listing.get(req.params.id);
   return res.json({ listing });
 });
@@ -84,10 +86,11 @@ router.get("/:id", async function (req, res, next) {
  *
  * Returns { id, name, street, city, state, country, description, photoUrl }
  *
- * Authorization required: 
+ * Authorization required: user who made listing or admin
  */
 
-router.patch("/:id", async function (req, res, next) {
+// TODO: add update functionality
+router.patch("/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
   // const validator = jsonschema.validate(req.body, listingUpdateSchema);
   // if (!validator.valid) {
   //   const errs = validator.errors.map(e => e.stack);
@@ -100,10 +103,11 @@ router.patch("/:id", async function (req, res, next) {
 
 /** DELETE /[id]  =>  { deleted: id }
  *
- * Authorization: 
+ * Authorization: user who made listing or admin
+ * 
  */
 
-router.delete("/:id", async function (req, res, next) {
+router.delete("/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
   await Listing.remove(req.params.id);
   return res.json({ deleted: req.params.id });
 });
