@@ -116,7 +116,7 @@ class Listing {
     * Returns [{ id, name, street, city, state, country, description, photoUrls, price }, ...]
     *   where photoUrls is: [URL, URL, URL]
     * */
-
+    // TODO: Can add price as a search filter
     static async findAll(searchFilters = {}) {
         const { name, city, state, country } = searchFilters;
 
@@ -125,7 +125,7 @@ class Listing {
         });
 
         const listingsRes = await db.query(`
-      SELECT l.id as "id",
+        SELECT l.id as "id",
              name,
              street,
              city,
@@ -135,8 +135,8 @@ class Listing {
              price,
              json_agg(lp.photourl) AS "photoUrls"
         FROM listings AS l
-        JOIN listing_photos AS lp
-            ON l.id = lp.listingsId
+            JOIN listing_photos AS lp
+                ON l.id = lp.listingsId
         ${where}
         GROUP BY l.id
         ORDER BY name

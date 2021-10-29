@@ -4,27 +4,26 @@ const { Readable } = require('stream');
 
 dotenv.config();
 
+//TODO: import these into this file from config/env
 const region = "us-west-1";
 const bucketName = "sharebnb-photos";
-const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-const IdentityPoolId = process.env.IDENTITY_POOL_ID;
 
+//TODO: Update to environment variable
 AWS.config.update({ region });
 
 const s3 = new AWS.S3({
   apiVersion: "2006-03-01",
-})
+});
 
 
 /** Uploads file to S3 and returns the URL */
 async function generateUploadUrl(file) {
-  console.log("generateUploadUrl", { file })
+  console.log("generateUploadUrl", { file });
   const params = ({
     Bucket: bucketName,
     Key: file.originalname,
     Body: ''
-  })
+  });
 
   const fileStream = Readable.from(file.buffer);
   fileStream.on('error', function (err) {
@@ -41,7 +40,7 @@ async function generateUploadUrl(file) {
     }
   }).promise();
 
-  console.log('generateUploadUrl returning', url)
+  console.log('generateUploadUrl returning', url);
   return url.Location;
 }
 

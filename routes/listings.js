@@ -70,10 +70,10 @@ router.get("/", ensureLoggedIn, async function (req, res, next) {
  *
  *  Listing is { id, name, street, city, state, country, description, photoUrls }
   *
- * Authorization required: logged in user
+ * Authorization required: none
  */
 
-router.get("/:id", ensureLoggedIn, async function (req, res, next) {
+router.get("/:id", async function (req, res, next) {
   const listing = await Listing.get(req.params.id);
   return res.json({ listing });
 });

@@ -25,3 +25,5 @@ CREATE TABLE listing_photos (
     REFERENCES listings,
   photoUrl TEXT
 );
+
+--TODO: Add reference between listings and users
