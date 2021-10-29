@@ -31,7 +31,13 @@
     "description": {
       "type": "string"
     },
-    "photoUrl": {
+    "photoUrl1": {
+      "type": "string"
+    },
+    "photoUrl2": {
+      "type": "string"
+    },
+    "photoUrl3": {
       "type": "string"
     },
     "price": {

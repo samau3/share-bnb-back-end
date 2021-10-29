@@ -1,7 +1,7 @@
 "use strict";
 const db = require("../db");
 
-const { NotFoundError } = require("../expressError");
+const { NotFoundError, BadRequestError } = require("../expressError");
 const sqlForPartialUpdate = require("../helpers/sql");
 
 class Listing {
@@ -35,12 +35,12 @@ class Listing {
         if (duplicateCheck.rows[0])
             throw new BadRequestError(`Duplicate listing: ${name}`);
 
-        const result = await db.query(
+        const listingResult = await db.query(
             `INSERT INTO listings
-               (name, street, city, state, country, description, photoUrl, price)
+               (name, street, city, state, country, description, price)
                  VALUES
-                   ($1, $2, $3, $4, $5, $6, $7, $8)
-                 RETURNING id, name, street, city, state, country, description, photourl AS "photoUrl, price"`,
+                   ($1, $2, $3, $4, $5, $6, $7)
+                 RETURNING id, name, street, city, state, country, description, price`,
             [
                 name,
                 street,
@@ -48,12 +48,26 @@ class Listing {
                 state,
                 country,
                 description,
-                photoUrl,
                 price
             ],
         );
-        const listing = result.rows[0];
+        const listing = listingResult.rows[0];
+        listing.photoUrl = [];
+        // update name photourls
+        photoUrl.forEach(async(photo) => {
+            console.log("in photoUrl for each loop", {photo});
+            const photoUrlsResult = await db.query(
+                `INSERT INTO listing_photos
+                    (photourl, listingsid)
+                    VALUES
+                    ($1, $2)
+                    RETURNING id, photourl AS "photoUrl", listingsid AS "listingsId"
+                `,[photo,listing.id])
+            listing.photoUrl.push(photoUrlsResult);
+        });
+
         return listing;
+
     }
 
     /** Create WHERE clause for filters, to be used by functions that query
@@ -120,18 +134,23 @@ class Listing {
         });
 
         const listingsRes = await db.query(`
-      SELECT id,
+      SELECT l.id,
              name,
              street,
              city,
              state,
              country,
              description,
-             photourl AS "photoUrl",
-             price
-        FROM listings ${where}
+             price,
+             json_agg(lp.photourl) AS "photoUrls"
+        FROM listings AS l
+        JOIN listing_photos AS lp
+            ON l.id = lp.listingsId
+        ${where}
+        GROUP BY l.id
         ORDER BY name
     `, vals);
+        console.log({listingsRes});
         return listingsRes.rows;
     }
 
@@ -144,23 +163,26 @@ class Listing {
 
     static async get(id) {
         const listingRes = await db.query(
-            `SELECT id,
+            `SELECT l.id,
                 name,
                 street,
                 city,
                 state,
                 country,
                 description,
-                photourl AS "photoUrl",
-                price
-           FROM listings
-           WHERE id = $1`,
+                price,
+                json_agg(lp.photourl) AS "photoUrls"
+           FROM listings AS l
+           JOIN listing_photos AS lp
+            ON l.id = lp.listingsId
+           WHERE l.id = $1
+           GROUP BY l.id`,
             [id]);
 
         const listing = listingRes.rows[0];
 
         if (!listing) throw new NotFoundError(`No listing: ${id}`);
-
+        console.log({listing});
         return listing;
     }
 
@@ -191,7 +213,6 @@ class Listing {
                             state,
                             country,
                             description,
-                            photourl AS "photoUrl",
                             price`;
         const result = await db.query(querySql, [...values, id]);
         const listing = result.rows[0];

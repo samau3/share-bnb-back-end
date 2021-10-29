@@ -6,7 +6,6 @@ CREATE TABLE listings (
   state TEXT NOT NULL,
   country TEXT NOT NULL,
   description TEXT NOT NULL,
-  -- photoUrl TEXT,
   price INTEGER NOT NULL
 );
 
@@ -21,8 +20,8 @@ CREATE TABLE users (
 );
 
 CREATE TABLE listing_photos (
-  id SERIAL PRIMARY KEY
-  photoUrl TEXT UNIQUE
+  id SERIAL PRIMARY KEY,
   listingsId INTEGER 
-    REFERENCES listings
+    REFERENCES listings,
+  photoUrl TEXT
 );
