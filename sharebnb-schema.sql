@@ -17,7 +17,7 @@ CREATE TABLE listings (
   country TEXT NOT NULL,
   description TEXT NOT NULL,
   price INTEGER NOT NULL,
-  username VARCHAR(25)
+  username VARCHAR(25) NOT NULL
     REFERENCES users
 );
 
