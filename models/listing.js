@@ -74,7 +74,7 @@ class Listing {
     * }
     */
 
-    static _filterWhereBuilder({ name, city, state, country }) {
+    static _filterWhereBuilder({ name, city, state, country, minPrice, maxPrice }) {
         let whereParts = [];
         let vals = [];
 
@@ -98,6 +98,16 @@ class Listing {
             whereParts.push(`country ILIKE $${vals.length}`);
         }
 
+        if (minPrice) {
+            vals.push(`${minPrice}`);
+            whereParts.push(`price > $${vals.length}`);
+        }
+
+        if (maxPrice) {
+            vals.push(`${maxPrice}`);
+            whereParts.push(`price < $${vals.length}`);
+        }
+
         const where = (whereParts.length > 0) ?
             "WHERE " + whereParts.join(" AND ")
             : "";
@@ -118,10 +128,10 @@ class Listing {
     * */
     // TODO: Can add price as a search filter
     static async findAll(searchFilters = {}) {
-        const { name, city, state, country } = searchFilters;
+        const { name, city, state, country, minPrice, maxPrice } = searchFilters;
 
         const { where, vals } = this._filterWhereBuilder({
-            name, city, state, country
+            name, city, state, country, minPrice, maxPrice,
         });
 
         const listingsRes = await db.query(`

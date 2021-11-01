@@ -18,6 +18,12 @@
     "state": {
       "type": "string",
       "maxLength": 100
+    },
+    "minPrice": {
+      "type": "string"
+    },
+    "maxPrice": {
+      "type": "string"
     }
   },
   "additionalProperties": false,
