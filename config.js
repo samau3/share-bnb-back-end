@@ -28,9 +28,15 @@ console.log("BCRYPT_WORK_FACTOR".yellow, BCRYPT_WORK_FACTOR);
 console.log("Database:".yellow, getDatabaseUri());
 console.log("---");
 
+// S3 configurations
+const region = "us-west-1";
+const bucketName = "sharebnb-photos";
+
 module.exports = {
   SECRET_KEY,
   PORT,
   BCRYPT_WORK_FACTOR,
   getDatabaseUri,
+  region,
+  bucketName,
 };
