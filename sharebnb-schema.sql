@@ -1,14 +1,3 @@
-CREATE TABLE listings (
-  id SERIAL PRIMARY KEY,
-  name TEXT UNIQUE NOT NULL,
-  street TEXT NOT NULL,
-  city TEXT NOT NULL,
-  state TEXT NOT NULL,
-  country TEXT NOT NULL,
-  description TEXT NOT NULL,
-  price INTEGER NOT NULL
-);
-
 CREATE TABLE users (
   username VARCHAR(25) PRIMARY KEY,
   password TEXT NOT NULL,
@@ -19,11 +8,24 @@ CREATE TABLE users (
   isAdmin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
+CREATE TABLE listings (
+  id SERIAL PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL,
+  street TEXT NOT NULL,
+  city TEXT NOT NULL,
+  state TEXT NOT NULL,
+  country TEXT NOT NULL,
+  description TEXT NOT NULL,
+  price INTEGER NOT NULL,
+  username VARCHAR(25)
+    REFERENCES users
+);
+
 CREATE TABLE listing_photos (
   id SERIAL PRIMARY KEY,
   listingsId INTEGER 
-    REFERENCES listings,
+    REFERENCES listings
+    ON DELETE CASCADE,
   photoUrl TEXT
 );
 
---TODO: Add reference between listings and users

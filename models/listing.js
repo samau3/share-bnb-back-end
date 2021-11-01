@@ -23,14 +23,15 @@ class Listing {
             country,
             description,
             photoUrls,
-            price } = newListingData;
+            price,
+            username } = newListingData;
 
         const listingResult = await db.query(
             `INSERT INTO listings
-               (name, street, city, state, country, description, price)
+               (name, street, city, state, country, description, price, username)
                  VALUES
-                   ($1, $2, $3, $4, $5, $6, $7)
-                 RETURNING id, name, street, city, state, country, description, price`,
+                   ($1, $2, $3, $4, $5, $6, $7, $8)
+                 RETURNING id, name, street, city, state, country, description, price, username`,
             [
                 name,
                 street,
@@ -38,13 +39,13 @@ class Listing {
                 state,
                 country,
                 description,
-                price
+                price,
+                username
             ],
         );
         const listing = listingResult.rows[0];
         listing.photoUrls = [];
         photoUrls.forEach(async (photo) => {
-            console.log("in photoUrl for each loop", { photo });
             const photoUrlsResult = await db.query(
                 `INSERT INTO listing_photos
                     (photourl, listingsid)
@@ -56,7 +57,6 @@ class Listing {
         });
 
         return listing;
-
     }
 
     /** Create WHERE clause for filters, to be used by functions that query
@@ -133,7 +133,8 @@ class Listing {
              country,
              description,
              price,
-             json_agg(lp.photourl) AS "photoUrls"
+             json_agg(lp.photourl) AS "photoUrls",
+             username
         FROM listings AS l
             JOIN listing_photos AS lp
                 ON l.id = lp.listingsId
@@ -141,7 +142,7 @@ class Listing {
         GROUP BY l.id
         ORDER BY name
     `, vals);
-        console.log({ listingsRes });
+
         return listingsRes.rows;
     }
 
@@ -163,7 +164,8 @@ class Listing {
                 country,
                 description,
                 price,
-                json_agg(lp.photourl) AS "photoUrls"
+                json_agg(lp.photourl) AS "photoUrls",
+                username
            FROM listings AS l
            JOIN listing_photos AS lp
             ON l.id = lp.listingsId
@@ -205,7 +207,8 @@ class Listing {
                             state,
                             country,
                             description,
-                            price`;
+                            price
+                            username`;
         const result = await db.query(querySql, [...values, id]);
         const listing = result.rows[0];
 

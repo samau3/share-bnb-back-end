@@ -19,12 +19,12 @@ const router = new express.Router();
 const upload = multer();
 
 /** POST /  =>
- *   { listing: { id, name, street, city, state, country, description, photoUrl }
+ *   { listing: { id, name, street, city, state, country, description, photoUrl }}
  *
  * Authorization required: logged in user
  */
-// TODO: maybe change upload.any to .array
-router.post("/", upload.any('file', 3), ensureLoggedIn, async function (req, res, next) {
+
+router.post("/", ensureLoggedIn, upload.array('file', 3), async function (req, res, next) {
   req.body.price = +req.body.price;
   const validator = jsonschema.validate(req.body, listingNewSchema);
   if (!validator.valid) {
@@ -37,6 +37,7 @@ router.post("/", upload.any('file', 3), ensureLoggedIn, async function (req, res
   }));
 
   req.body.photoUrls = urls;
+  console.log("req.body", req.body);
   const listing = await Listing.create(req.body);
   return res.status(201).json({ listing });
 });

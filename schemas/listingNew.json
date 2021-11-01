@@ -37,6 +37,10 @@
     "price": {
       "type": "integer",
       "minimum": 0
+    },
+    "username": {
+      "type": "string",
+      "maxLength": 25
     }
   },
   "additionalProperties": false,
