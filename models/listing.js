@@ -126,7 +126,6 @@ class Listing {
     * Returns [{ id, name, street, city, state, country, description, photoUrls, price }, ...]
     *   where photoUrls is: [URL, URL, URL]
     * */
-    // TODO: Can add price as a search filter
     static async findAll(searchFilters = {}) {
         const { name, city, state, country, minPrice, maxPrice } = searchFilters;
 
