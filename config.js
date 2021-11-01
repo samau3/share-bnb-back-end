@@ -29,7 +29,7 @@ console.log("Database:".yellow, getDatabaseUri());
 console.log("---");
 
 // S3 configurations
-const region = "us-west-1";
+const region = process.env.AWS_REGION;
 const bucketName = "sharebnb-photos";
 
 module.exports = {

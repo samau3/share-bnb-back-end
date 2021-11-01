@@ -5,7 +5,6 @@ const { region, bucketName } = require("./config");
 
 dotenv.config();
 
-//TODO: Update to environment variable
 AWS.config.update({ region });
 
 const s3 = new AWS.S3({
