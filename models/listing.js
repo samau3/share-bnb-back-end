@@ -23,14 +23,15 @@ class Listing {
             country,
             description,
             photoUrls,
-            price } = newListingData;
+            price,
+            username } = newListingData;
 
         const listingResult = await db.query(
             `INSERT INTO listings
-               (name, street, city, state, country, description, price)
+               (name, street, city, state, country, description, price, username)
                  VALUES
-                   ($1, $2, $3, $4, $5, $6, $7)
-                 RETURNING id, name, street, city, state, country, description, price`,
+                   ($1, $2, $3, $4, $5, $6, $7, $8)
+                 RETURNING id, name, street, city, state, country, description, price, username`,
             [
                 name,
                 street,
@@ -38,13 +39,13 @@ class Listing {
                 state,
                 country,
                 description,
-                price
+                price,
+                username
             ],
         );
         const listing = listingResult.rows[0];
         listing.photoUrls = [];
         photoUrls.forEach(async (photo) => {
-            console.log("in photoUrl for each loop", { photo });
             const photoUrlsResult = await db.query(
                 `INSERT INTO listing_photos
                     (photourl, listingsid)
@@ -56,7 +57,6 @@ class Listing {
         });
 
         return listing;
-
     }
 
     /** Create WHERE clause for filters, to be used by functions that query
@@ -74,7 +74,7 @@ class Listing {
     * }
     */
 
-    static _filterWhereBuilder({ name, city, state, country }) {
+    static _filterWhereBuilder({ name, city, state, country, minPrice, maxPrice }) {
         let whereParts = [];
         let vals = [];
 
@@ -98,6 +98,16 @@ class Listing {
             whereParts.push(`country ILIKE $${vals.length}`);
         }
 
+        if (minPrice) {
+            vals.push(`${minPrice}`);
+            whereParts.push(`price > $${vals.length}`);
+        }
+
+        if (maxPrice) {
+            vals.push(`${maxPrice}`);
+            whereParts.push(`price < $${vals.length}`);
+        }
+
         const where = (whereParts.length > 0) ?
             "WHERE " + whereParts.join(" AND ")
             : "";
@@ -116,12 +126,11 @@ class Listing {
     * Returns [{ id, name, street, city, state, country, description, photoUrls, price }, ...]
     *   where photoUrls is: [URL, URL, URL]
     * */
-    // TODO: Can add price as a search filter
     static async findAll(searchFilters = {}) {
-        const { name, city, state, country } = searchFilters;
+        const { name, city, state, country, minPrice, maxPrice } = searchFilters;
 
         const { where, vals } = this._filterWhereBuilder({
-            name, city, state, country
+            name, city, state, country, minPrice, maxPrice,
         });
 
         const listingsRes = await db.query(`
@@ -133,7 +142,8 @@ class Listing {
              country,
              description,
              price,
-             json_agg(lp.photourl) AS "photoUrls"
+             json_agg(lp.photourl) AS "photoUrls",
+             username
         FROM listings AS l
             JOIN listing_photos AS lp
                 ON l.id = lp.listingsId
@@ -141,7 +151,7 @@ class Listing {
         GROUP BY l.id
         ORDER BY name
     `, vals);
-        console.log({ listingsRes });
+
         return listingsRes.rows;
     }
 
@@ -163,7 +173,8 @@ class Listing {
                 country,
                 description,
                 price,
-                json_agg(lp.photourl) AS "photoUrls"
+                json_agg(lp.photourl) AS "photoUrls",
+                username
            FROM listings AS l
            JOIN listing_photos AS lp
             ON l.id = lp.listingsId
@@ -205,7 +216,8 @@ class Listing {
                             state,
                             country,
                             description,
-                            price`;
+                            price
+                            username`;
         const result = await db.query(querySql, [...values, id]);
         const listing = result.rows[0];
 

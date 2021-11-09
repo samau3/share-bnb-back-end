@@ -1,20 +1,15 @@
 const dotenv = require("dotenv");
 const AWS = require("aws-sdk");
-const { Readable } = require('stream');
+const { Readable } = require("stream");
+const { region, bucketName } = require("./config");
 
 dotenv.config();
 
-//TODO: import these into this file from config/env
-const region = "us-west-1";
-const bucketName = "sharebnb-photos";
-
-//TODO: Update to environment variable
 AWS.config.update({ region });
 
 const s3 = new AWS.S3({
   apiVersion: "2006-03-01",
 });
-
 
 /** Uploads file to S3 and returns the URL */
 async function generateUploadUrl(file) {
@@ -40,7 +35,6 @@ async function generateUploadUrl(file) {
     }
   }).promise();
 
-  console.log('generateUploadUrl returning', url);
   return url.Location;
 }
 
