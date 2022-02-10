@@ -75,6 +75,7 @@ class Listing {
     */
 
     static _filterWhereBuilder({ name, city, state, country, minPrice, maxPrice }) {
+        console.log({ name, city, state, country, minPrice, maxPrice})
         let whereParts = [];
         let vals = [];
 
@@ -111,7 +112,7 @@ class Listing {
         const where = (whereParts.length > 0) ?
             "WHERE " + whereParts.join(" AND ")
             : "";
-
+        console.log( { where, vals})
         return { where, vals };
     }
 
@@ -128,6 +129,7 @@ class Listing {
     * */
     static async findAll(searchFilters = {}) {
         const { name, city, state, country, minPrice, maxPrice } = searchFilters;
+        
 
         const { where, vals } = this._filterWhereBuilder({
             name, city, state, country, minPrice, maxPrice,
@@ -185,7 +187,6 @@ class Listing {
         const listing = listingRes.rows[0];
 
         if (!listing) throw new NotFoundError(`No listing: ${id}`);
-        console.log({ listing });
         return listing;
     }
 
