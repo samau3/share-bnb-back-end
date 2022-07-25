@@ -54,9 +54,8 @@ router.post("/", ensureLoggedIn, upload.array('file', 3), async function (req, r
  * Authorization required: logged in user
  */
 
-router.get("/", ensureLoggedIn, async function (req, res, next) {
+router.get("/", async function (req, res, next) {
   const q = req.query;
-
   const validator = jsonschema.validate(q, listingSearchSchema);
   if (!validator.valid) {
     const errs = validator.errors.map(e => e.stack);
