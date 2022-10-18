@@ -30,7 +30,7 @@ console.log("---");
 
 // S3 configurations
 const region = process.env.AWS_REGION;
-const bucketName = "sharebnb-photos";
+const bucketName = "sharebnb-photos2";
 
 module.exports = {
   SECRET_KEY,
