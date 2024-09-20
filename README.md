@@ -4,6 +4,8 @@ JSON API application using NodeJS/Express with resources on listings and users. 
 - PostgreSQL
 - Jest supertest
 
+Currently, the AWS S3 bucket hosting the images is **paused** because this project is not actively used. Feel free to reach out if you would like to see it working. 
+
 # How to use API
 In root directory, run the following command: node server.js As with other RESTful APIs, it's helpful to use a platform like Insomnia to see test how the application responds to different requests.
 
